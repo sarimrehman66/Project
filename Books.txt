@@ -1,0 +1,3 @@
+rime and punishment,DOstovesky,500,1000
+sarim,23,34,500
+arim,23,23,78
