@@ -456,7 +456,7 @@ void deleteBook(string titles[], string authors[], double prices[], int bookCoun
     }
 
     int bookIndex1;
-    cout << "Enter the index of the book you want to edit : ";
+    cout << "Enter the index of the book you want to delete : ";
     cin >> bookIndex1;
 
 
@@ -592,7 +592,6 @@ cout << "Enter the quantity sold: ";
         double totalSales = prices[bookIndex] * quantity;
         totalSalesAmount+=totalSales;
         cout<<quantity<<"amount of "<<titles[bookIndex]<<"sold"<<endl;
-        cout << "Sales record updated successfully. Total sales: "  << endl;
     }
 }
 void checkPrice(const string titles[], const string authors[], const double prices[], int bookCount,int stock[]){
