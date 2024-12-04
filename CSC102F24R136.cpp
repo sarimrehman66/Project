@@ -1,27 +1,34 @@
 #include <iostream>
- #include<fstream>
+#include <fstream>
 #include <string>
 #include <iomanip>
-#include<cctype>
+#include <cctype>
 
 using namespace std;
+
 const int MAX_BOOKS = 100;
 double totalSalesAmount = 0;
+struct Book {
+    string title;
+    string author;
+    double price;
+    int stock;
+};
 void menu();
 void adminOptions();
 void userOptions();
-void addBook(string titles[], string authors[], double prices[], int &bookCount,int stock[]);
-void viewAllBooks(const string titles[], const string authors[], const double prices[], const int bookCount);
-void editBook(string titles[], string authors[], double prices[], int bookCount);
-void deleteBook(string titles[], string authors[], double prices[], int bookCount);
-void generateReport(const string titles[], const string authors[], const double prices[], int bookCount);
-void searchBook(const string titles[], const string authors[], const double prices[], int bookCount);
-void salesEntry(const string titles[], const string authors[], const double prices[], int bookCount,int stock[]);
-void checkPrice(const string titles[], const string authors[], const double prices[], int bookCount,int stock[]);
-void checkStock(const string titles[], const string authors[], const double prices[], int bookCount,int stock[]);
-void saveBooks(const string titles[], const string authors[], const double prices[], int bookCount,int stock[]);
-void savetotalSales(const string titles[], const string authors[], const double prices[], int bookCount,int stock[]);
-void loadBooks( string titles[],  string authors[],  double prices[], int &bookCount,int stock[]);
+void addbook(Book book[], int &bookCount);
+void viewAllBooks(const Book book[], const int bookCount);
+void editBook(Book book[], int bookCount);
+void deleteBook(Book book[], int bookCount);
+void generateReport(const Book book[], int bookCount);
+void searchBook(const Book books[], int bookCount);
+void salesEntry(Book books[], int bookCount);
+void checkPrice(const Book books[], int bookCount);
+void checkStock(const Book books[], int bookCount);
+void saveBooks(const Book books[], int bookCount);
+void savetotalSales();
+void loadBooks(Book books[], int &bookCount);
 int main()
 {
     string name;
@@ -29,17 +36,14 @@ int main()
     string user;
     int input1, input2, input3;
     int loggedInUserType = -10;
-    string titles[MAX_BOOKS];
-    string authors[MAX_BOOKS];
-    double prices[MAX_BOOKS];
-    int stock[MAX_BOOKS];
+    Book books[MAX_BOOKS];
     int bookCount = 0;
-    cout << " *********************************************************************                              "<<endl;
-    cout << "                               "<<endl;
-    cout << "                       BOOKS HUB                             "<<endl;
-    cout << "                               "<<endl;
-    cout << " *********************************************************************                              "<<endl;
-     loadBooks(  titles, authors, prices,bookCount, stock);
+    cout << " *********************************************************************                              " << endl;
+    cout << "                               " << endl;
+    cout << "                       BOOKS HUB                             " << endl;
+    cout << "                               " << endl;
+    cout << " *********************************************************************                              " << endl;
+    loadBooks(books,bookCount);
 
     do
     {
@@ -52,15 +56,15 @@ int main()
             cin >> input1;
 
             if (cin.fail())
-            {                            
-                cin.clear();             
-                cin.ignore(10000, '\n'); 
+            {
+                cin.clear();
+                cin.ignore(10000, '\n');
                 cout << "Invalid input. Please enter a valid integer." << endl;
             }
             else
             {
-                cin.ignore(10000, '\n'); 
-                break;                   
+                cin.ignore(10000, '\n');
+                break;
             }
         }
 
@@ -118,28 +122,28 @@ int main()
                 switch (input2)
                 {
                 case 1:
-                    cout << "Total Sales:"<<totalSalesAmount<<endl;
+                    cout << "Total Sales:" << totalSalesAmount << endl;
                     break;
                 case 2:
-                    addBook(titles, authors, prices, bookCount,stock);
+                    addbook(books, bookCount);
                     break;
                 case 3:
-                    deleteBook(titles, authors, prices, bookCount);
+                    deleteBook(books, bookCount);
                     break;
                 case 4:
-                    editBook(titles, authors, prices, bookCount);
+                    editBook(books, bookCount);
                     break;
                 case 5:
-                    generateReport(titles, authors, prices, bookCount);
+                    generateReport(books, bookCount);
                     break;
                 case 6:
-                    viewAllBooks(titles, authors, prices, bookCount);
+                    viewAllBooks(books, bookCount);
                     break;
                 case 0:
                     cout << "Logged out" << endl;
-                    saveBooks(titles, authors, prices,  bookCount, stock);
-                     savetotalSales(titles, authors,  prices,  bookCount, stock);
-                    loggedInUserType = -10; 
+                    saveBooks(books, bookCount);
+                    
+                    loggedInUserType = -10;
                     break;
                 default:
                     cout << "Invalid choice" << endl;
@@ -176,20 +180,21 @@ int main()
                 switch (input3)
                 {
                 case 1:
-                    searchBook(titles, authors, prices, bookCount);
+                    searchBook(books, bookCount);
                     break;
                 case 2:
-                     checkPrice( titles, authors,  prices,  bookCount, stock);
+                    checkPrice(books, bookCount);
                     break;
                 case 3:
-                     checkStock( titles,  authors,  prices,  bookCount, stock);
+                    checkStock(books, bookCount);
                     break;
                 case 4:
-                    salesEntry( titles, authors,   prices,  bookCount,stock);
+                    salesEntry(books, bookCount);
                     break;
                 case 0:
                     cout << "Logged out" << endl;
-                    loggedInUserType = -10; 
+                    savetotalSales();
+                    loggedInUserType = -10;
                     break;
                 default:
                     cout << "Invalid choice" << endl;
@@ -219,18 +224,19 @@ void menu()
     cout << "\tChoose an option: ";
 }
 // Admin options
-void adminOptions() {
+void adminOptions()
+{
     cout << "Choose the desired option\n";
 
     cout << setw(15) << "1. Total sales"
          << setw(15) << "2. Add book"
          << setw(20) << "3. Delete book"
-         << setw(20) << "4. Edit Book" 
+         << setw(20) << "4. Edit Book"
          << endl;
 
     cout << setw(20) << "5. Generate Stock Report"
          << setw(20) << "6. View All Books"
-         << setw(20) << "0. Logout" 
+         << setw(20) << "0. Logout"
          << endl;
 
     cout.unsetf(ios::left);
@@ -240,7 +246,8 @@ void adminOptions() {
 }
 
 // User options
-void userOptions() {
+void userOptions()
+{
     cout << endl;
     cout << "Choose the desired option\n";
 
@@ -254,10 +261,9 @@ void userOptions() {
          << endl;
 }
 
-
-void addBook(string titles[], string authors[], double prices[], int &bookCount,int stock[])
+void addbook(Book books[],int &bookCount)
 {
-    char choice; 
+    char choice;
 
     do
     {
@@ -269,11 +275,10 @@ void addBook(string titles[], string authors[], double prices[], int &bookCount,
 
         string title, author;
 
-        
         while (true)
         {
             cout << "Enter book title : ";
-         
+
             getline(cin, title);
 
             if (title.empty())
@@ -286,12 +291,11 @@ void addBook(string titles[], string authors[], double prices[], int &bookCount,
             }
             else
             {
-                titles[bookCount] = title; 
-                break; 
+                books[bookCount].title = title;
+                break;
             }
         }
 
-        
         while (true)
         {
             cout << "Enter book author : ";
@@ -307,44 +311,44 @@ void addBook(string titles[], string authors[], double prices[], int &bookCount,
             }
             else
             {
-                authors[bookCount] = author; 
-                break; 
+                books[bookCount].author = author;
+                break;
             }
         }
 
-        
         while (true)
         {
             cout << "Enter book price: ";
-            cin >> prices[bookCount];
+            cin >> books[bookCount].price;
 
-            if (cin.fail() || prices[bookCount] < 0)
-            { 
-                cin.clear(); 
-                cin.ignore(10000, '\n'); 
+            if (cin.fail() || books[bookCount].price < 0)
+            {
+                cin.clear();
+                cin.ignore(10000, '\n');
                 cout << "Invalid input. Please enter a valid positive number for the price." << endl;
             }
             else
             {
-                cin.ignore(10000, '\n'); 
-                break; 
+                cin.ignore(10000, '\n');
+                break;
             }
         }
-        while(true){
-        cout<<"Enter total stock of book :";
-        cin>>stock[bookCount];
-        if (cin.fail() || stock[bookCount]<0)
+        while (true)
         {
-            cout<<"Please enter a valid number.";
-            cin>>stock[bookCount];
+            cout << "Enter total stock of book :";
+            cin >> books[bookCount].stock;
+            if (cin.fail() || books[bookCount].stock < 0)
+            {
+                cout << "Please enter a valid number.";
+                cin >> books[bookCount].stock;
+            }
+            else
+            {
+                break;
+            }
         }
-        else{
-            break;
-        }
-        }
-        bookCount++; 
+        bookCount++;
         cout << "Book added successfully!" << endl;
-
 
         while (true)
         {
@@ -353,7 +357,7 @@ void addBook(string titles[], string authors[], double prices[], int &bookCount,
 
             if (choice == 'y' || choice == 'Y' || choice == 'n' || choice == 'N')
             {
-                break; 
+                break;
             }
             else
             {
@@ -361,11 +365,11 @@ void addBook(string titles[], string authors[], double prices[], int &bookCount,
             }
         }
 
-    } while (choice == 'y' || choice == 'Y'); 
+    } while (choice == 'y' || choice == 'Y');
 
     cout << "Exiting addBook function." << endl;
 }
-void viewAllBooks(const string titles[], const string authors[], const double prices[], const int bookCount)
+void viewAllBooks(const Book books[], const int bookCount)
 {
     if (bookCount == 0)
     {
@@ -380,12 +384,12 @@ void viewAllBooks(const string titles[], const string authors[], const double pr
 
     for (int i = 0; i < bookCount; i++)
     {
-        cout << setw(30) << titles[i]
-             << setw(30) << authors[i]
-             << setw(10) << fixed << setprecision(2) << prices[i] << endl;
+        cout << setw(30) << books[i].title
+             << setw(30) << books[i].author
+             << setw(10) << fixed << setprecision(2) << books[i].price << endl;
     }
 }
-void editBook(string titles[], string authors[], double prices[], int bookCount)
+void editBook(Book books[], int bookCount)
 {
     if (bookCount == 0)
     {
@@ -397,29 +401,26 @@ void editBook(string titles[], string authors[], double prices[], int bookCount)
     cout << "Enter the index of the book you want to edit : ";
     cin >> bookIndex;
 
-    
     while (cin.fail() || bookIndex < 0 || bookIndex >= bookCount)
     {
-        cin.clear();             
-        cin.ignore(10000, '\n'); 
+        cin.clear();
+        cin.ignore(10000, '\n');
         cout << "Invalid index. Please enter a valid index (0 to " << bookCount - 1 << "): ";
         cin >> bookIndex;
     }
 
-    
     cout << "Current details of the book:" << endl;
-    cout << "Title: " << titles[bookIndex] << endl;
-    cout << "Author: " << authors[bookIndex] << endl;
-    cout << "Price: " << fixed << setprecision(2) << prices[bookIndex] << endl;
+    cout << "Title: " << books[bookIndex].title << endl;
+    cout << "Author: " << books[bookIndex].author << endl;
+    cout << "Price: " << fixed << setprecision(2) << books[bookIndex].price << endl;
 
-    
     cout << "Enter new title : ";
-    cin.ignore(); 
+    cin.ignore();
     string newTitle;
     getline(cin, newTitle);
     if (!newTitle.empty())
     {
-        titles[bookIndex] = newTitle; 
+        books[bookIndex].title = newTitle;
     }
 
     cout << "Enter new author : ";
@@ -427,27 +428,26 @@ void editBook(string titles[], string authors[], double prices[], int bookCount)
     getline(cin, newAuthor);
     if (!newAuthor.empty())
     {
-        authors[bookIndex] = newAuthor; 
+        books[bookIndex].author = newAuthor;
     }
 
-    
     double newPrice;
     cout << "Enter new price: ";
     cin >> newPrice;
     if (cin.fail() || newPrice < 0)
     {
-        cin.clear();             
-        cin.ignore(10000, '\n'); 
-        cout << "Keeping current price: " << fixed << setprecision(2) << prices[bookIndex] << endl;
+        cin.clear();
+        cin.ignore(10000, '\n');
+        cout << "Keeping current price: " << fixed << setprecision(2) << books[bookIndex].price << endl;
     }
     else
     {
-        prices[bookIndex] = newPrice; 
+        books[bookIndex].price = newPrice;
     }
 
     cout << "Book details updated successfully!" << endl;
 }
-void deleteBook(string titles[], string authors[], double prices[], int bookCount)
+void deleteBook(Book books[], int bookCount)
 {
     if (bookCount == 0)
     {
@@ -459,30 +459,28 @@ void deleteBook(string titles[], string authors[], double prices[], int bookCoun
     cout << "Enter the index of the book you want to delete : ";
     cin >> bookIndex1;
 
-
     while (cin.fail() || bookIndex1 < 0 || bookIndex1 >= bookCount)
     {
-        cin.clear();             
-        cin.ignore(10000, '\n'); 
+        cin.clear();
+        cin.ignore(10000, '\n');
         cout << "Invalid index. Please enter a valid index : ";
         cin >> bookIndex1;
     }
 
-    
     cout << "Selected book:" << endl;
-    cout << "Title: " << titles[bookIndex1] << endl;
-    cout << "Author: " << authors[bookIndex1] << endl;
-    cout << "Price: " << fixed << setprecision(2) << prices[bookIndex1] << endl;
+    cout << "Title: " << books[bookIndex1].title << endl;
+    cout << "Author: " << books[bookIndex1].author << endl;
+    cout << "Price: " << fixed << setprecision(2) << books[bookIndex1].price << endl;
     for (int i = bookIndex1; i < bookCount - 1; i++)
     {
-        titles[i] = titles[i + 1];
-        authors[i] = authors[i + 1];
-        prices[i] = prices[i + 1];
+        books[i].title = books[i].title;
+        books[i].author = books[i+1].author;
+        books[i].price = books[i+1].price;
     }
     bookCount--;
     cout << "Book Deleted Successfuly" << endl;
 }
-void generateReport(const string titles[], const string authors[], const double prices[], int bookCount)
+void generateReport(const Book books[], int bookCount)
 {
     if (bookCount == 0)
     {
@@ -500,10 +498,10 @@ void generateReport(const string titles[], const string authors[], const double 
 
     for (int i = 0; i < bookCount; i++)
     {
-        cout << setw(30) << titles[i]
-             << setw(30) << authors[i]
-             << setw(10) << fixed << setprecision(2) << prices[i] << endl;
-        totalValue += prices[i]; 
+        cout << setw(30) << books[i].title
+             << setw(30) << books[i].author
+             << setw(10) << fixed << setprecision(2) << books[i].price << endl;
+        totalValue +=books[i].price;
     }
 
     cout << string(70, '-') << endl;
@@ -511,7 +509,7 @@ void generateReport(const string titles[], const string authors[], const double 
     cout << "Total value of books: " << fixed << setprecision(2) << totalValue << endl;
     cout << "====================================================" << endl;
 }
-void searchBook(const string titles[], const string authors[], const double prices[], int bookCount)
+void searchBook(const Book books[], int bookCount)
 {
     if (bookCount == 0)
     {
@@ -523,18 +521,18 @@ void searchBook(const string titles[], const string authors[], const double pric
     cout << "Enter the Title of the Book" << endl;
     cin.ignore();
     getline(cin, searchedBook);
-   
+
     cout << left << setw(30) << "Title"
          << setw(30) << "Author"
          << setw(10) << "Price" << endl;
     cout << string(70, '-') << endl;
     for (int i = 0; i < bookCount; i++)
     {
-        if ( searchedBook == titles[i])
+        if (searchedBook == books[i].title)
         {
-            cout << setw(30) << titles[i]
-                 << setw(30) << authors[i]
-                 << setw(10) << fixed << setprecision(2) << prices[i] << endl;
+            cout << setw(30) << books[i].title
+                 << setw(30) << books[i].author
+                 << setw(10) << fixed << setprecision(2) << books[i].price << endl;
             found = true;
         }
     }
@@ -543,59 +541,62 @@ void searchBook(const string titles[], const string authors[], const double pric
         cout << "No books found" << endl;
     }
 }
-void salesEntry(const string titles[], const string authors[], const double prices[], int bookCount,int stock[]){
+void salesEntry( Book books[], int bookCount)
+{
     if (bookCount == 0)
     {
         cout << "No books available for sale." << endl;
         return;
     }
-    cout<<"Available Books"<<endl;
-     cout << left << setw(30) << "Title"
+    cout << "Available Books" << endl;
+    cout << left << setw(30) << "Title"
          << setw(30) << "Author"
          << setw(10) << "Price" << endl;
     cout << string(70, '-') << endl;
 
     for (int i = 0; i < bookCount; i++)
     {
-        cout << setw(30) << titles[i]
-             << setw(30) << authors[i]
-             << setw(10) << fixed << setprecision(2) << prices[i] << endl;
-}
-int bookIndex;
-int quantity;
-cout << "Enter the index of the book you want to sell  ";
+         cout << setw(30) << books[i].title
+             << setw(30) << books[i].author
+             << setw(10) << fixed << setprecision(2) << books[i].price << endl;
+    }
+    int bookIndex;
+    int quantity;
+    cout << "Enter the index of the book you want to sell  ";
     cin >> bookIndex;
 
-    
     while (cin.fail() || bookIndex < 0 || bookIndex >= bookCount)
     {
-        cin.clear();            
-        cin.ignore(10000, '\n'); 
+        cin.clear();
+        cin.ignore(10000, '\n');
         cout << "Invalid index. Please enter a valid index  ";
         cin >> bookIndex;
     }
-cout << "Enter the quantity sold: ";
+    cout << "Enter the quantity sold: ";
     cin >> quantity;
 
-    
     while (cin.fail() || quantity <= 0)
     {
-        cin.clear();             
-        cin.ignore(10000, '\n'); 
+        cin.clear();
+        cin.ignore(10000, '\n');
         cout << "Invalid quantity. Please enter a positive integer: ";
         cin >> quantity;
     }
-    if (quantity > stock[bookIndex]) {
-        cout << "Not enough stock available. Only " << stock[bookIndex] << " available." << endl;
-    } else {
-        stock[bookIndex] -= quantity; 
-        double totalSales = prices[bookIndex] * quantity;
-        totalSalesAmount+=totalSales;
-        cout<<quantity<<"amount of "<<titles[bookIndex]<<"sold"<<endl;
+    if (quantity > books[bookIndex].stock)
+    {
+        cout << "Not enough stock available. Only " << books[bookIndex].stock << " available." << endl;
+    }
+    else
+    {
+        books[bookIndex].stock -= quantity;
+        double totalSales = books[bookIndex].price * quantity;
+        totalSalesAmount += totalSales;
+        cout << "Sales record updated successfully." << endl;
     }
 }
-void checkPrice(const string titles[], const string authors[], const double prices[], int bookCount,int stock[]){
-  if (bookCount == 0)
+void checkPrice(const Book books[], int bookCount)
+{
+    if (bookCount == 0)
     {
         cout << "No books available ." << endl;
         return;
@@ -605,18 +606,18 @@ void checkPrice(const string titles[], const string authors[], const double pric
     cout << "Enter the Title of the Book" << endl;
     cin.ignore();
     getline(cin, searchedBook);
-   
+
     cout << left << setw(30) << "Title"
-         
+
          << setw(30) << "Price" << endl;
     cout << string(70, '-') << endl;
     for (int i = 0; i < bookCount; i++)
     {
-        if ( searchedBook == titles[i])
+        if (searchedBook == books[i].title)
         {
-            cout << setw(30) << titles[i]
-                 
-                 << setw(30) << fixed << setprecision(2) << prices[i] << endl;
+            cout << setw(30) << books[i].title
+
+                 << setw(30) << fixed << setprecision(2) << books[i].price << endl;
             found = true;
         }
     }
@@ -624,12 +625,10 @@ void checkPrice(const string titles[], const string authors[], const double pric
     {
         cout << "No books found" << endl;
     }
-
-
-
 }
-void checkStock(const string titles[], const string authors[], const double prices[], int bookCount,int stock[]){
-  if (bookCount == 0)
+void checkStock(const Book books[], int bookCount)
+{
+    if (bookCount == 0)
     {
         cout << "No books available ." << endl;
         return;
@@ -639,18 +638,18 @@ void checkStock(const string titles[], const string authors[], const double pric
     cout << "Enter the Title of the Book" << endl;
     cin.ignore();
     getline(cin, searchedBook);
-   
+
     cout << left << setw(30) << "Title"
-         
+
          << setw(30) << "Stock" << endl;
     cout << string(70, '-') << endl;
     for (int i = 0; i < bookCount; i++)
     {
-        if ( searchedBook == titles[i])
+        if (searchedBook == books[i].title)
         {
-            cout << setw(30) << titles[i]
-                 
-                 << setw(30) << fixed << setprecision(2) << stock[i] << endl;
+            cout << setw(30) << books[i].title
+
+                 << setw(30) << fixed << setprecision(2) << books[i].stock << endl;
             found = true;
         }
     }
@@ -658,55 +657,57 @@ void checkStock(const string titles[], const string authors[], const double pric
     {
         cout << "No books found" << endl;
     }
-
 }
-void saveBooks(const string titles[], const string authors[], const double prices[], int bookCount,int stock[]){
+void saveBooks(const Book books[], int bookCount)
+{
     ofstream fout;
     fout.open("Books.txt");
-        if (!fout.is_open()) {
-        cout<<"Error opening file"<<endl;
-        return ;
+    if (!fout.is_open())
+    {
+        cout << "Error opening file" << endl;
+        return;
     }
     for (int i = 0; i < bookCount; i++)
     {
-        fout << titles[i] << "," << authors[i] << "," << prices[i] << "," << stock[i] << endl;
+        fout << books[i].title << "," << books[i].author << "," << books[i].price << "," << books[i].stock << endl;
     }
     fout.close();
-    
-
-
 }
-void savetotalSales(const string titles[], const string authors[], const double prices[], int bookCount,int stock[]){
+void savetotalSales()
+{
     ofstream fout;
     fout.open("Sales.txt");
-     if (!fout.is_open()) {
-        cout<<"Error opening file"<<endl;
-        return ;
+    if (!fout.is_open())
+    {
+        cout << "Error opening file" << endl;
+        return;
+    }
+    fout << totalSalesAmount << endl;
 }
-fout<<totalSalesAmount<<endl;
-}
-void loadBooks( string titles[],  string authors[],  double prices[], int &bookCount,int stock[]){
+void loadBooks(Book books[], int &bookCount)
+{
     ifstream fin;
     fin.open("Books.txt");
-    if (!fin.is_open()) {
-        cout<<"Error opening file"<<endl;
-        return ;
-     }bookCount=0;
-     while (bookCount<MAX_BOOKS && fin.good())
-     {
-        getline(fin, titles[bookCount], ',');
-        getline(fin, authors[bookCount],',');
-        fin >> prices[bookCount];
-        fin.ignore(); 
-        fin >> stock[bookCount];
-        fin.ignore(); 
+    if (!fin.is_open())
+    {
+        cout << "Error opening file" << endl;
+        return;
+    }
+    bookCount = 0;
+    while (bookCount < MAX_BOOKS && fin.good())
+    {
+        getline(fin, books[bookCount].title, ',');
+        getline(fin, books[bookCount].author, ',');
+        fin >> books[bookCount].price;
+        fin.ignore();
+        fin >> books[bookCount].stock;
+        fin.ignore();
 
-        if (fin.fail()) {
+        if (fin.fail())
+        {
             break;
         }
         bookCount++;
     }
     fin.close();
-     }
-     
-
+}
